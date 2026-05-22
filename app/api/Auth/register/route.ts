@@ -4,60 +4,6 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// interface ProtectedRequest extends Request {
-//   user?: { id: string };
-// }
-
-// dotenv.config();
-
-// const SALT_ROUNDS = 10;
-
-// export const signUp = async (req: Request, res: Response) => {
-//   try {
-//     const { username, firstName, lastName, email, password } = req.body;
-//     const errors: Record<string, string> = {};
-
-//     const existingEmail = await User.findOne({ email });
-
-//     if (!email) errors.email = "Email is required";
-//     if(!firstName) errors.firstName = "First name is required";
-//     if(!lastName) errors.lastName = "Last name is required";
-//     if (!username) errors.username = "Username is required";
-//     if (!password) errors.password = "Password is required";
-
-//     if (existingEmail) {
-//       errors.email = "Email already in use";
-//     }
-
-//     const existingUsername = await User.findOne({ username });
-//     if (existingUsername) {
-//       errors.username = "Username already in use";
-//     }
-
-//     if (password.length < 8) {
-//       errors.password = "Password must be at least 8 characters long";
-//     }
-
-//     if (Object.keys(errors).length > 0) {
-//       return res.status(400).json({ errors });
-//     }
-
-//     const newUser = await User.create({
-//       username,
-//       email,
-//       firstName,
-//       lastName,
-//       password,
-//     });
-
-//     res.status(201).json({ message: "User created", user: newUser });
-//   } catch (error) {
-//     res.status(500).json({ message: "Something went wrong. Please try again later.", error });
-//   }
-// };
-
-//---------------------------
-
 export async function POST(req: Request) {
     try {
         const body = await req.json();
