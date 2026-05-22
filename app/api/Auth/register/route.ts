@@ -1,5 +1,5 @@
 import { registerSchema } from "@/lib/validations/auth";
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
