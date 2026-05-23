@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { SignJWT } from "jose";
 
 export async function POST(req: Request) {
     try {
@@ -30,10 +31,26 @@ export async function POST(req: Request) {
             }
         });
 
-        return NextResponse.json(
-            { message: "Användare skapad", user: { id: newUser.id, name: newUser.name, email: newUser.email } },
-            { status: 201 }
+        const token = await new SignJWT({ userId: newUser.id })
+            .setProtectedHeader({ alg: "HS256" })
+            .setExpirationTime("1h")
+            .sign(new TextEncoder().encode(process.env.JWT_SECRET));
+
+        const response = NextResponse.json(
+            { message: "Registrering och inloggning lyckades", user: { id: newUser.id, name: newUser.name, email: newUser.email } },
+            { status: 200 }
         );
+
+        response.cookies.set("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60,
+            path: "/",
+        });
+
+        return response;
+
     } catch (error) {
         if (error instanceof ZodError) {
 
