@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST() {
     
   try {
-    const res = NextResponse.json({ message: "Logout successful", status: 200 });
+    const res = NextResponse.json({ message: "Utloggning lyckades", status: 200 });
 
     res.cookies.set("token", "", {
       httpOnly: true,
@@ -18,6 +18,6 @@ export async function POST() {
 
   } catch (error) {
 
-    return NextResponse.json({ message: "Server error", error }, { status: 500 });
+    return NextResponse.json({ message: "Serverfel", error }, { status: 500 });
   }
 };
