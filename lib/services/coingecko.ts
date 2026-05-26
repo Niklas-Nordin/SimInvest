@@ -1,4 +1,4 @@
-type CoinGeckoSimplePriceResponse = Record<
+type CoinGeckoPriceResponse = Record<
     string,
     {
         sek?: number;
@@ -9,53 +9,52 @@ type CoinGeckoSimplePriceResponse = Record<
 
 export type CoinPrice = {
     coingeckoId: string;
-    priceSek: number;
+    priceSek: number | null;
     change24h: number | null;
     lastUpdatedAt: number | null;
 };
 
-const COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3";
+const BASE_URL = "https://api.coingecko.com/api/v3";
 
-export async function fetchCoinPrices(
-    coinIds: string[]
-): Promise<CoinPrice[]> {
+export async function fetchCoinPrices(coinIds: string[]): Promise<CoinPrice[]> {
     const apiKey = process.env.COINGECKO_API_KEY;
 
     if (!apiKey) {
-        throw new Error("COINGECKO_API_KEY saknas i .env");
+        throw new Error("CoinGecko API-nyckel saknas.");
     }
 
     if (coinIds.length === 0) {
         return [];
     }
 
-    const params = new URLSearchParams({
+    const searchParams = new URLSearchParams({
         ids: coinIds.join(","),
         vs_currencies: "sek",
         include_24hr_change: "true",
         include_last_updated_at: "true",
     });
 
-    const response = await fetch(
-        `${COINGECKO_BASE_URL}/simple/price?${params.toString()}`,
-        {
-            headers: {
-                "x-cg-demo-api-key": apiKey,
-            },
-            cache: "no-store",
-        }
-    );
+    const response = await fetch(`${BASE_URL}/simple/price?${searchParams}`, {
+        headers: {
+            "x-cg-demo-api-key": apiKey,
+        },
+        cache: "no-store",
+    });
 
     if (!response.ok) {
         throw new Error(`CoinGecko svarade med status ${response.status}`);
     }
 
-    const data = (await response.json()) as CoinGeckoSimplePriceResponse;
+    const data = (await response.json()) as CoinGeckoPriceResponse;
 
-    return coinIds.map((coingeckoId) => ({
-        coingeckoId,
-        priceSek: data[coingeckoId]?.sek ?? 0,
-        change24h: data[coingeckoId]?.sek_24h_change ?? null,
-        lastUpdatedAt: data[coingeckoId]?.last_updated_at ?? null,
-    }));
+    return coinIds.map((coinId) => {
+        const coin = data[coinId];
+
+        return {
+            coingeckoId: coinId,
+            priceSek: coin?.sek ?? null,
+            change24h: coin?.sek_24h_change ?? null,
+            lastUpdatedAt: coin?.last_updated_at ?? null,
+        };
+    });
 }
