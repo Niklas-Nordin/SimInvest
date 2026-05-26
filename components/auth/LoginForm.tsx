@@ -114,8 +114,12 @@ function LoginForm() {
             </div>
 
             {errors.server && <p className="text-red-500">{errors.server}</p>}
-            
-            <button type="submit" className="bg-blue-500 text-white p-2 rounded cursor-pointer">
+
+            <p className="text-blue-500 underline cursor-pointer">
+                Har du glömt lösenord?
+            </p>
+
+            <button type="submit" className="bg-space-dark text-white p-2 rounded cursor-pointer">
                 Logga in
             </button>
         </form>
