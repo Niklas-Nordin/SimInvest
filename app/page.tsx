@@ -2,6 +2,7 @@
 
 import RegisterForm from "@/components/auth/RegisterForm";
 import LoginForm from "@/components/auth/LoginForm";
+import InfoCard from "@/components/landingPage/InfoCard";
 import { useState } from "react";
 
 export default function Home() {
@@ -9,7 +10,7 @@ export default function Home() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div className="flex">
+    <div className="flex flex-col gap-10">
       <div className="w-full p-10 flex flex-col items-center gap-6 bg-gradient-to-br from-space-dark via-space-teal to-space-dark">
         <div className="flex flex-col items-center text-center w-full md:mx-auto md:items-start text-space-light gap-4">
           <h1 className="text-3xl font-bold text-space-light">Lär dig investering utan risk med <span className="text-white">100 000 SEK</span> i demokapital</h1>
@@ -27,6 +28,7 @@ export default function Home() {
           {isLogin ? <LoginForm /> : <RegisterForm />}
         </div>
       </div>
+      <InfoCard />
     </div>
   );
 }
