@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface AuthFormData {
     email: string;
@@ -14,6 +15,9 @@ interface AuthFormErrors {
 }
 
 function LoginForm() {
+
+    const router = useRouter();
+    
     const [formData, setFormData] = useState<AuthFormData>({
         email: "",
         password: "",
@@ -65,6 +69,8 @@ function LoginForm() {
             if(!response.ok) {
                 console.log(data)
                 throw new Error(data.error ||"Något gick fel");
+            } else {
+                router.push("/dashboard");
             }
 
         } catch (error) {
