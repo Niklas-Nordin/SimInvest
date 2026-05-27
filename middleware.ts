@@ -8,24 +8,24 @@ export async function middleware(request: NextRequest) {
 
     const token = request.cookies.get('token')?.value
     const {pathname} = request.nextUrl
+    let isTokenValid = false
 
-    if (!token) {
-        if (pathname !== '/auth') {
-            return NextResponse.redirect(new URL('/auth', request.url))
-        }
-    } else {
+    if (token) {
         try {
             await jwtVerify(token, secret)
+            isTokenValid = true
         } catch (error) {
-            return NextResponse.redirect(new URL('/auth', request.url))
+            const response = NextResponse.redirect(new URL('/', request.url))
+            response.cookies.delete('token')
+            return response
         }
     }
 
-    if ((pathname.startsWith("/dashboard") || pathname.startsWith("/market")) && !token) {
-        return NextResponse.redirect(new URL('/auth', request.url))
+    if ((pathname.startsWith("/dashboard") || pathname.startsWith("/market")) && !isTokenValid) {
+        return NextResponse.redirect(new URL('/', request.url))
     }
 
-    if (pathname.startsWith('/auth') && token) {
+    if (pathname === '/' && isTokenValid) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
@@ -33,5 +33,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/dashboard", "/market", "/auth"]
+    matcher: ["/dashboard/:path*", "/market/:path*", "/"]
 }
