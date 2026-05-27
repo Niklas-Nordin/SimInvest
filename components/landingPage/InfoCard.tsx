@@ -1,4 +1,4 @@
-import {steps} from "@/lib/infoSteps";
+import {steps} from "@/lib/data";
 
 function Card() {
   return (

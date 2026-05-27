@@ -3,6 +3,7 @@
 import RegisterForm from "@/components/auth/RegisterForm";
 import LoginForm from "@/components/auth/LoginForm";
 import InfoCard from "@/components/landingPage/InfoCard";
+import Accordion from "@/components/landingPage/Accordion";
 import { useState } from "react";
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
         </div>
       </div>
       <InfoCard />
+      <Accordion />
     </div>
   );
 }
