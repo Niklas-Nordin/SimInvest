@@ -8,7 +8,7 @@ export const steps = [
     {
         step: 2,
         icon: "/analyze.svg",
-        title: "Analysa marknaden",
+        title: "Analysera marknaden",
         description: "Följ kryptovalutor som Bitcoin, Ethereum och Solana i realtid. Använd våra avancerade verktyg för att hitta nästa stora investeringstrend."
     },
     {
