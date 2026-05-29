@@ -47,5 +47,29 @@ export async function GET(req: NextRequest, context: RouteContext) {
             );
         }
 
+        // Hämtar historisk prisdata från CoinGecko med assetens coingeckoId.
+        const history = await fetchCoinPriceHistory(asset.coingeckoId, days);
 
+        return NextResponse.json({
+            success: true,
+            asset: {
+                id: asset.id,
+                name: asset.name,
+                symbol: asset.symbol,
+                coingeckoId: asset.coingeckoId,
+            },
+            days,
+            data: history,
+        });
+    } catch (error) {
+        console.error("Kunde inte hämta historisk prisdata:", error);
+
+        return NextResponse.json(
+            {
+                success: false,
+                error: "Kunde inte hämta historisk prisdata.",
+            },
+            { status: 500 }
+        );
     }
+}
