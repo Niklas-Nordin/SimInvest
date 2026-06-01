@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Hämtar alla aktiva kryptovalutor från databasen.
 export async function GET() {
     try {
         const assets = await prisma.asset.findMany({
@@ -21,6 +22,7 @@ export async function GET() {
             },
         });
 
+        // Returnerar listan med kryptovalutor till frontend.
         return NextResponse.json({
             success: true,
             count: assets.length,
@@ -28,6 +30,8 @@ export async function GET() {
         });
     } catch (error) {
         console.error("Failed to fetch assets:", error);
+
+        // Returnerar ett felmeddelande om något går fel vid databashämtning.
         return NextResponse.json(
             {
                 success: false,
