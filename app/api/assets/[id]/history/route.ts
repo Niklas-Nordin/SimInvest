@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fetchCoinPriceHistory } from "@/lib/services/coingecko-history";
 
+// Tillåtna perioder för historisk prisdata
 const allowedDays = [1, 7, 30, 365];
 
 type RouteContext = {
@@ -12,11 +13,13 @@ type RouteContext = {
 
 export async function GET(req: NextRequest, context: RouteContext) {
     try {
+        // Hämtar assetId från URL, Läser query-parametern days från URL
         const { id } = await context.params;
         const searchParams = req.nextUrl.searchParams;
         const daysParam = searchParams.get("days") ?? "7";
         const days = Number(daysParam);
 
+        // Stoppar requesten om perioden inte är tillåten
         if (!allowedDays.includes(days)) {
             return NextResponse.json(
                 {
@@ -26,6 +29,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
             );
         }
 
+        // Hämtar kryptovalutan från databasen för att få dess coingeckoId
         const asset = await prisma.asset.findUnique({
             where: {
                 id,
@@ -39,6 +43,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
             },
         });
 
+        // Om kryptovalutan inte finns eller är inaktiv returneras 404
         if (!asset || !asset.isActive) {
             return NextResponse.json(
                 { error: "Kryptovalutan hittades inte." },
@@ -46,9 +51,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
             );
         }
 
-        // Hämtar historisk prisdata från CoinGecko med assetens coingeckoId.
+        // Hämtar historisk prisdata från CoinGecko med assetens coingeckoId
         const history = await fetchCoinPriceHistory(asset.coingeckoId, days);
 
+        // Returnerar historiken i ett format som frontend kan använda till graf
         return NextResponse.json({
             success: true,
             asset: {
