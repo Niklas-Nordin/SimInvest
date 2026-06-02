@@ -83,6 +83,46 @@ export async function GET(req: NextRequest) {
             );
         }
 
+        let totalHoldingsValueSek = new Prisma.Decimal(0);
+        let totalInvestedSek = new Prisma.Decimal(0);
+
+        const holdings = user.holdings.map((holding) => {
+            const currentPrice = holding.asset.priceCache?.priceSek ?? null;
+            // Om pris saknas använder vi 0 som aktuellt värde.
+            const currentValueSek = currentPrice
+                ? holding.quantity.mul(currentPrice)
+                : new Prisma.Decimal(0);
+
+            const investedValueSek = holding.quantity.mul(holding.averageBuyPrice);
+            const profitLossSek = currentValueSek.sub(investedValueSek);
+
+            const profitLossPercent = investedValueSek.gt(0)
+                ? profitLossSek.div(investedValueSek).mul(100)
+                : new Prisma.Decimal(0);
+
+            totalHoldingsValueSek = totalHoldingsValueSek.add(currentValueSek);
+            totalInvestedSek = totalInvestedSek.add(investedValueSek);
+
+            return {
+                id: holding.id,
+                asset: {
+                    id: holding.asset.id,
+                    coingeckoId: holding.asset.coingeckoId,
+                    symbol: holding.asset.symbol,
+                    name: holding.asset.name,
+                    imageUrl: holding.asset.imageUrl,
+                },
+                quantity: holding.quantity.toString(),
+                averageBuyPrice: holding.averageBuyPrice.toString(),
+                currentPriceSek: currentPrice?.toString() ?? null,
+                currentValueSek: currentValueSek.toString(),
+                investedValueSek: investedValueSek.toString(),
+                profitLossSek: profitLossSek.toString(),
+                profitLossPercent: profitLossPercent.toFixed(2),
+                updatedAt: holding.updatedAt,
+            };
+        });
+
 
     }
 }
