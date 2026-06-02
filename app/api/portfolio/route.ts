@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { Prisma } from "@prisma/client";
-
 import { prisma } from "@/lib/prisma";
 import { getPricesWithCache } from "@/lib/helpers/prices";
 
@@ -20,7 +19,6 @@ async function getUserIdFromToken(req: NextRequest) {
     if (!token) {
         return null;
     }
-
     try {
         // Verifierar token och hämtar userId från payload.
         const { payload } = await jwtVerify(token, secret);
@@ -85,18 +83,14 @@ export async function GET(req: NextRequest) {
 
         let totalHoldingsValueSek = new Prisma.Decimal(0);
         let totalInvestedSek = new Prisma.Decimal(0);
-
         const holdings = user.holdings.map((holding) => {
             const currentPrice = holding.asset.priceCache?.priceSek ?? null;
-
             // Om pris saknas använder vi 0 som aktuellt värde.
             const currentValueSek = currentPrice
                 ? holding.quantity.mul(currentPrice)
                 : new Prisma.Decimal(0);
-
             const investedValueSek = holding.quantity.mul(holding.averageBuyPrice);
             const profitLossSek = currentValueSek.sub(investedValueSek);
-
             const profitLossPercent = investedValueSek.gt(0)
                 ? profitLossSek.div(investedValueSek).mul(100)
                 : new Prisma.Decimal(0);
@@ -126,7 +120,6 @@ export async function GET(req: NextRequest) {
 
         const totalPortfolioValueSek = user.cashBalance.add(totalHoldingsValueSek);
         const totalProfitLossSek = totalHoldingsValueSek.sub(totalInvestedSek);
-
         const totalProfitLossPercent = totalInvestedSek.gt(0)
             ? totalProfitLossSek.div(totalInvestedSek).mul(100)
             : new Prisma.Decimal(0);
