@@ -64,8 +64,8 @@ function page() {
   const topAssetChange = topAsset && topAsset.change24h ? parseFloat(topAsset.change24h) : 0;
   const topLoserChange = topLoser && topLoser.change24h ? parseFloat(topLoser.change24h) : 0;
 
-  const topAssetText = topAssetChange >= 0 ? "Dagens vinnare" : "Minst nedgång";
-  const topLoserText = topLoserChange < 0 ? "Dagens förlorare" : "Minst uppgång";
+  const topAssetText = topAssetChange >= 0 ? "Högst uppgång" : "Minst nedgång";
+  const topLoserText = topLoserChange < 0 ? "Högst nedgång" : "Minst uppgång";
 
   return (
     <div className="p-10 flex flex-col gap-6">
