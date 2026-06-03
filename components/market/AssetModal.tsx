@@ -1,5 +1,7 @@
 "use client";
 
+import PriceGraph from "@/components/market/PriceGraph";
+
 interface CryptoAsset {
   id: string;
   coingeckoId: string;
@@ -20,7 +22,7 @@ interface AssetModalProps {
 function AssetModal({ Asset, onClose }: AssetModalProps) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl">
         <div className="flex items-start justify-between">
           <div>
             <img src={Asset.imageUrl} alt={Asset.name} className="w-12 h-12 rounded-full mb-4" />
@@ -31,6 +33,8 @@ function AssetModal({ Asset, onClose }: AssetModalProps) {
               <img src="close.svg" alt={"Stäng"} className="w-8 h-8" />
           </button>
         </div>
+
+        <PriceGraph Asset={Asset} />
       </div>
     </div>
   );
