@@ -20,12 +20,16 @@ function PriceGraph({ Asset }: { Asset: CryptoAsset }) {
     const [chartData, setChartData] = useState<{ date: number; price: number }[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const ticketCount = days === 1 ? 6 : days === 7 ? 7 : days === 30 ? 10 : 12;
+
     useEffect(() => {
 
         setLoading(true);
         
         try {
             const fetchPriceHistory = async () => {
+                setLoading(true);
+
                 const response = await fetch(`/api/assets/${Asset.id}/history?days=${days}`);
 
                 if (!response.ok) {
@@ -57,7 +61,7 @@ function PriceGraph({ Asset }: { Asset: CryptoAsset }) {
 
   return (
     <div className="bg-gray-500/10 p-4">
-        <div className="flex gap-4 mb-4">
+        <div className="flex gap-4 mb-4 mr-6 justify-end">
             <button className={`${days === 1 ? 'bg-space-teal text-white' : ''} px-2 py-1 rounded cursor-pointer`} onClick={() => setDays(1)}>24 h</button>
             <button className={`${days === 7 ? 'bg-space-teal text-white' : ''} px-2 py-1 rounded cursor-pointer`} onClick={() => setDays(7)}>7 dagar</button>
             <button className={`${days === 30 ? 'bg-space-teal text-white' : '0'} px-2 py-1 rounded cursor-pointer`} onClick={() => setDays(30)}>30 dagar</button>
@@ -66,18 +70,47 @@ function PriceGraph({ Asset }: { Asset: CryptoAsset }) {
         {loading ? <p>Laddar prisgraf...</p>
         : (
             <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: -30, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 2, bottom: 0 }}>
+
                     <defs>
                         <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="rgb(35, 77, 96)" stopOpacity={0.8}/>
                             <stop offset="100%" stopColor="rgb(35, 77, 96)" stopOpacity={0.1}/>
                         </linearGradient>
                     </defs>
-                    <XAxis dataKey="date" tickCount={7} type="number" domain={["dataMin", "dataMax"]} tickFormatter={(value) => new Date(value).toLocaleDateString("sv-SE", {
-                        month: "short",
-                        day: "numeric",
-                    })} />
+
+                    <XAxis dataKey="date" tickCount={ticketCount} type="number" domain={["dataMin", "dataMax"]} 
+                    tickFormatter={(value) => {
+                        const date = new Date(value);
+
+                        if (days === 1) {
+                            return date.toLocaleTimeString("sv-SE", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            });
+                        }
+
+                        if (days <= 7) {
+                            return date.toLocaleDateString("sv-SE", {
+                            day: "numeric",
+                            month: "short",
+                            });
+                        }
+
+                        if (days <= 30) {
+                            return date.toLocaleDateString("sv-SE", {
+                            day: "numeric",
+                            month: "short",
+                            });
+                        }
+
+                        return date.toLocaleDateString("sv-SE", {
+                            month: "short",
+                        });
+                        }} />
+
                     <YAxis domain={["auto", "auto"]} />
+
                     <Tooltip
                     animationDuration={100}
                     cursor={{
@@ -95,8 +128,11 @@ function PriceGraph({ Asset }: { Asset: CryptoAsset }) {
                         })
                     }
                     />
+
                     <CartesianGrid strokeDasharray="3 3" />
-                    <Area type="monotone" dataKey="pris" stroke="rgb(35, 77, 96)" fillOpacity={1} fill="url(#colorPrice)" style={{ pointerEvents: "none" }} />
+
+                    <Area type="monotone" dataKey="pris" stroke="rgb(35, 77, 96)" fillOpacity={1} fill="url(#colorPrice)" style={{ pointerEvents: "none"  }} />
+
                 </AreaChart>
             </ResponsiveContainer>
         )}
