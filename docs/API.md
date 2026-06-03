@@ -507,3 +507,71 @@ För dashboard/portfolio används:
 ```http
 GET /api/portfolio
 ```
+## Transactions
+
+### Hämta användarens transaktionshistorik
+
+```http
+GET /api/transactions
+```
+
+Kräver att användaren är inloggad.
+
+Den här endpointen hämtar tidigare köp och sälj för den inloggade användaren. Backend läser användarens `userId` från JWT-token i HttpOnly-cookien och hämtar endast transaktioner som tillhör den användaren.
+
+Transaktionerna sorteras med senaste först.
+
+Exempel på lyckat svar:
+
+```json
+{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "id": "transaction-id",
+      "type": "SELL",
+      "asset": {
+        "id": "asset-id",
+        "coingeckoId": "bitcoin",
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "imageUrl": "https://..."
+      },
+      "quantity": "0.001",
+      "priceSek": "700000",
+      "totalSek": "700",
+      "createdAt": "2026-05-29T12:00:00.000Z"
+    },
+    {
+      "id": "transaction-id",
+      "type": "BUY",
+      "asset": {
+        "id": "asset-id",
+        "coingeckoId": "bitcoin",
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "imageUrl": "https://..."
+      },
+      "quantity": "0.001428571428",
+      "priceSek": "700000",
+      "totalSek": "1000",
+      "createdAt": "2026-05-29T11:50:00.000Z"
+    }
+  ]
+}
+```
+
+Om användaren inte har några transaktioner returneras en tom lista:
+
+```json
+{
+  "success": true,
+  "count": 0,
+  "data": []
+}
+```
+
+Om användaren inte är inloggad returneras status `401`.
+
+Frontend kan använda denna endpoint för att visa en transaktionstabell på Dashboard eller Portfolio-sidan med köp, sälj, datum, symbol, quantity, pris och totalbelopp.
