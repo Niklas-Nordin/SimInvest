@@ -58,30 +58,40 @@ function BuyAsset({ Asset }: BuyAssetProps) {
         return;
     }
 
+    const endpoint = buy ? "/api/trades/buy" : "/api/trades/sell";
+
     try {
-      const response = await fetch("/api/trades/buy", {
+      const requestBody = buy ? {
+        assetId: Asset.id,
+        amountSek: amountSekToSend,
+      } : {
+        assetId: Asset.id,
+        quantity: calculateUnits,
+      };
+
+      const response = await fetch(endpoint, {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-              assetId: Asset.id,
-              amountSek: amountSekToSend
-          })
+          body: JSON.stringify(requestBody)
       });
+
+      console.log("endpoint:", endpoint);
+      console.log("requestBody:", requestBody);
 
       const result = await response.json();
 
       if (!response.ok) {
-              throw new Error(result.error || result.errors?.amountSek || "Köp misslyckades.");
+              throw new Error(result.error || result.errors?.amountSek || ({ message: "Ett oväntat fel inträffade." }));
             }
 
-      setSuccessMessage("Köporder skickad!");
+      setSuccessMessage(buy ? "Köporder genomfört!" : "Säljorder genomförd!");
       setAmount("");
       setStep("success");
 
     } catch (error) {
-      setErrorMessage("Det gick inte att skicka köporder.");
+      setErrorMessage(error instanceof Error ? error.message : "Ett oväntat fel inträffade.");
 
     } finally {
       setIsSubmitting(false);
@@ -96,7 +106,7 @@ function BuyAsset({ Asset }: BuyAssetProps) {
           <button type="button" className={`w-[50%] p-2 cursor-pointer ${buy ? 'border-b-2 border-space-dark text-space-dark' : 'border-b-2 border-gray-400 text-gray-400'}`} onClick={() => setBuy(true)}>
             Köp
           </button>
-          <button type="button" className={`w-[50%] p-2 cursor-pointer ${!buy ? 'border-b-2 border-space-dark text-space-dark' : 'border-b-2 border-gray-400 text-gray-400'}`} onClick={() => setBuy(false)}>
+          <button type="button" className={`w-[50%] p-2 cursor-pointer ${!buy ? 'border-b-2 border-space-dark text-space-dark' : 'border-b-2 border-gray-400 text-gray-400'}`} onClick={() => { setBuy(false); setAmount(""); setErrorMessage(null); }}>
             Sälj
           </button>
         </div>
@@ -122,7 +132,7 @@ function BuyAsset({ Asset }: BuyAssetProps) {
             <div>
               {calcUnits ? (
                 <>
-                  <label htmlFor="price" className="block text-sm font-medium">Pris per enhet</label>
+                  <label htmlFor="price" className="block text-sm font-medium">Antal enheter</label>
                   <input type="text" id="price" name="price" readOnly cursor-not-allowed value={calculateUnits} className="w-full border border-gray-500 rounded-md p-2 focus:outline-none" />
                 </>
               ) : (
@@ -143,7 +153,7 @@ function BuyAsset({ Asset }: BuyAssetProps) {
         <div className="py-4">
           <h3 className="text-xl font-bold text-center mb-4">Bekräfta din order</h3>
           
-          <div className="bg-gray-500/5 p-4 rounded-md space-y-3 mb-6 text-sm flex flex-col gap-2">
+          <div className="bg-gray-200 border border-gray-500 shadow p-4 rounded-md space-y-3 mb-6 text-sm flex flex-col gap-2">
             <div className="flex justify-between">
               <span>Tillgång:</span>
               <span className="font-bold">{Asset.name} ({Asset.symbol})</span>
@@ -153,8 +163,7 @@ function BuyAsset({ Asset }: BuyAssetProps) {
               <span className="font-bold">{calcUnits ? calculateUnits : amount} {Asset.symbol}</span>
             </div>
             <div className="flex justify-between items-center border-t border-gray-600 pt-2 text-base">
-              <span className="font-medium text-lg">Total kostnad:</span>
-              {/* Alltid .toFixed(2) på svenska kronor */}
+              <span className="font-medium text-lg">{buy ? "Total kostnad:" : "Total intäkt:"}</span>
               <span className="font-bold text-space-teal text-lg">{typeof amountSekToSend === "number" ? amountSekToSend.toFixed(2) : amountSekToSend}</span>
             </div>
           </div>
@@ -167,12 +176,12 @@ function BuyAsset({ Asset }: BuyAssetProps) {
               onClick={handleSubmit}
               className="w-[65%] bg-space-teal text-white p-3 rounded-md hover:bg-space-teal/80 cursor-pointer font-bold disabled:bg-gray-600 transition-colors"
             >
-              {isSubmitting ? "Behandlar..." : "Bekräfta köp"}
+              {isSubmitting ? "Behandlar..." : buy ? "Bekräfta köp" : "Bekräfta sälj"}
             </button>
             <button 
               disabled={isSubmitting}
               onClick={() => setStep("input")}
-              className="w-[35%] bg-gray-600 text-white p-3 rounded-md hover:bg-gray-500 cursor-pointer text-center"
+              className="w-[35%] bg-white text-space-teal border border-space-teal p-3 rounded-md hover:bg-space-teal/5 cursor-pointer text-center"
             >
               Avbryt
             </button>
@@ -182,7 +191,7 @@ function BuyAsset({ Asset }: BuyAssetProps) {
 
       {step === "success" && successMessage && (
         <div className="text-center py-4">
-          <h3 className="text-xl font-bold mb-2">Köp genomfört!</h3>
+          <h3 className="text-xl font-bold mb-2">{buy ? "Köp genomfört!" : "Sälj genomförd!"}</h3>
           <p className="text-green-500">{successMessage}</p>
           <button 
             onClick={() => setStep("input")}
