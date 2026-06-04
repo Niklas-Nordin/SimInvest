@@ -14,11 +14,11 @@ interface CryptoAsset {
   source: string;
 }
 
-interface BuyAssetProps {
+interface TradeAssetProps {
   Asset: CryptoAsset;
 }
 
-function BuyAsset({ Asset }: BuyAssetProps) {
+function TradeAsset({ Asset }: TradeAssetProps) {
 
   const [buy, setBuy] = useState(true);
   const [amount, setAmount] = useState("");
@@ -205,4 +205,4 @@ function BuyAsset({ Asset }: BuyAssetProps) {
   );
 }
 
-export default BuyAsset;
+export default TradeAsset;
