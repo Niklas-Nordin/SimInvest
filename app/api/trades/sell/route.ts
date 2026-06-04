@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sellTradeSchema } from "@/lib/validations/trade";
 import { getPricesWithCache } from "@/lib/helpers/prices";
+import { createPortfolioSnapshot } from "@/lib/helpers/portfolio-snapshot";
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -153,6 +154,9 @@ export async function POST(req: NextRequest) {
                 },
             });
 
+            // Skapar en snapshot efter att sälj, holding och saldo har uppdaterats.
+            const snapshotResult = await createPortfolioSnapshot(tx, userId);
+
             return {
                 asset: holding.asset,
                 holdingId: holding.id,
@@ -162,6 +166,7 @@ export async function POST(req: NextRequest) {
                     : newQuantity,
                 updatedUser,
                 transaction,
+                snapshot: snapshotResult.snapshot,
                 soldQuantity: quantityDecimal,
                 currentPrice,
                 totalSek,
@@ -197,6 +202,12 @@ export async function POST(req: NextRequest) {
                         type: result.transaction.type,
                         totalSek: result.transaction.totalSek.toString(),
                         createdAt: result.transaction.createdAt,
+                    },
+                    snapshot: {
+                        id: result.snapshot.id,
+                        totalValueSek: result.snapshot.totalValueSek.toString(),
+                        cashBalance: result.snapshot.cashBalance.toString(),
+                        createdAt: result.snapshot.createdAt,
                     },
                 },
             },
