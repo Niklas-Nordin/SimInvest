@@ -1,14 +1,410 @@
 "use client";
 
-import Logout from "@/components/auth/Logout";
+import { useEffect, useState } from "react";
+import AssetModal from "@/components/market/AssetModal";
 
-function page() {
+interface CryptoAsset {
+  id: string;
+  coingeckoId: string;
+  symbol: string;
+  name: string;
+  imageUrl: string;
+  priceSek: string | null;
+  change24h: string | null;
+  priceUpdatedAt: Date | null;
+  source: string;
+}
+
+interface Holding {
+  id: string;
+  asset: {
+    id: string;
+    coingeckoId: string;
+    symbol: string;
+    name: string;
+    imageUrl: string | null;
+  };
+  quantity: string;
+  averageBuyPrice: string;
+  currentPriceSek: string | null;
+  currentValueSek: string;
+  investedValueSek: string;
+  profitLossSek: string;
+  profitLossPercent: string;
+  updatedAt: string;
+}
+
+interface PortfolioData {
+  success: boolean;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  summary: {
+    cashBalance: string;
+    totalHoldingsValueSek: string;
+    totalPortfolioValueSek: string;
+    totalInvestedSek: string;
+    totalProfitLossSek: string;
+    totalProfitLossPercent: string;
+  };
+  holdings: Holding[];
+}
+
+interface Transaction {
+  id: string;
+  type: "BUY" | "SELL";
+  asset: {
+    id: string;
+    coingeckoId: string;
+    symbol: string;
+    name: string;
+    imageUrl: string | null;
+  };
+  quantity: string;
+  priceSek: string;
+  totalSek: string;
+  createdAt: string;
+}
+
+interface TransactionsData {
+  success: boolean;
+  count: number;
+  data: Transaction[];
+}
+
+function formatSek(value: string | null | undefined) {
+  if (!value) {
+    return "N/A";
+  }
+
+  return `${parseFloat(value).toFixed(2)} SEK`;
+}
+
+function formatQuantity(value: string | null | undefined) {
+  if (!value) {
+    return "N/A";
+  }
+
+  return parseFloat(value).toFixed(8);
+}
+
+function DashboardPage() {
+  const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [selectedAsset, setSelectedAsset] = useState<CryptoAsset | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function refreshDashboardData() {
+    try {
+      const portfolioResponse = await fetch("/api/portfolio", {
+        credentials: "include",
+      });
+
+      if (!portfolioResponse.ok) {
+        throw new Error("Kunde inte hämta portfölj.");
+      }
+
+      const portfolioData: PortfolioData = await portfolioResponse.json();
+      setPortfolio(portfolioData);
+
+      const transactionsResponse = await fetch("/api/transactions", {
+        credentials: "include",
+      });
+
+      if (!transactionsResponse.ok) {
+        throw new Error("Kunde inte hämta transaktioner.");
+      }
+
+      const transactionsData: TransactionsData =
+        await transactionsResponse.json();
+
+      setTransactions(transactionsData.data);
+    } catch (error) {
+      console.error("Dashboard refresh failed:", error);
+    }
+  }
+
+  function openAssetModal(holding: Holding) {
+    const assetForModal: CryptoAsset = {
+      id: holding.asset.id,
+      coingeckoId: holding.asset.coingeckoId,
+      symbol: holding.asset.symbol,
+      name: holding.asset.name,
+      imageUrl: holding.asset.imageUrl || "/globe.svg",
+      priceSek: holding.currentPriceSek,
+      change24h: null,
+      priceUpdatedAt: null,
+      source: "portfolio",
+    };
+
+    setSelectedAsset(assetForModal);
+    setIsOpen(true);
+  }
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadDashboardData() {
+      try {
+        const portfolioResponse = await fetch("/api/portfolio", {
+          credentials: "include",
+        });
+
+        if (!portfolioResponse.ok) {
+          throw new Error("Kunde inte hämta portfölj.");
+        }
+
+        const portfolioData: PortfolioData = await portfolioResponse.json();
+
+        const transactionsResponse = await fetch("/api/transactions", {
+          credentials: "include",
+        });
+
+        if (!transactionsResponse.ok) {
+          throw new Error("Kunde inte hämta transaktioner.");
+        }
+
+        const transactionsData: TransactionsData =
+          await transactionsResponse.json();
+
+        if (!ignore) {
+          setPortfolio(portfolioData);
+          setTransactions(transactionsData.data);
+        }
+      } catch (error) {
+        console.error("Dashboard fetch failed:", error);
+
+        if (!ignore) {
+          setError("Något gick fel när dashboard skulle hämtas.");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadDashboardData();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="p-8">
+        <p className="text-lg">Laddar dashboard...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="p-8">
+        <p className="text-red-500 font-bold">{error}</p>
+      </main>
+    );
+  }
+
   return (
-    <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Logout />
-    </div>
+    <main className="p-8">
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+
+      {portfolio && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p className="text-gray-500 text-sm">Saldo</p>
+              <p className="text-2xl font-bold">
+                {formatSek(portfolio.summary.cashBalance)}
+              </p>
+            </div>
+
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p className="text-gray-500 text-sm">Innehavsvärde</p>
+              <p className="text-2xl font-bold">
+                {formatSek(portfolio.summary.totalHoldingsValueSek)}
+              </p>
+            </div>
+
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p className="text-gray-500 text-sm">Totalt portföljvärde</p>
+              <p className="text-2xl font-bold">
+                {formatSek(portfolio.summary.totalPortfolioValueSek)}
+              </p>
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-bold mb-4">Mina innehav</h2>
+
+          {portfolio.holdings.length === 0 ? (
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p>Du har inga innehav ännu.</p>
+            </div>
+          ) : (
+            <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden mt-4">
+              <thead className="bg-gray-200 uppercase text-sm">
+                <tr className="text-left">
+                  <th className="p-4">Namn</th>
+                  <th className="p-4">Innehav</th>
+                  <th className="p-4">Värde</th>
+                  <th className="p-4">Vinst/Förlust</th>
+                  <th className="p-4">Åtgärd</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {portfolio.holdings.map((holding) => {
+                  const profitLoss = parseFloat(holding.profitLossSek);
+                  const profitLossPercent = parseFloat(
+                    holding.profitLossPercent
+                  );
+
+                  return (
+                    <tr
+                      className="hover:bg-gray-100 text-left border-b border-gray-300"
+                      key={holding.id}
+                    >
+                      <td className="flex items-center gap-4 p-4">
+                        <img
+                          src={holding.asset.imageUrl || "/globe.svg"}
+                          alt={holding.asset.name}
+                          className="w-10 h-10 rounded-full"
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-bold capitalize">
+                            {holding.asset.name}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {holding.asset.symbol.toUpperCase()}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="p-4">
+                        {formatQuantity(holding.quantity)}{" "}
+                        {holding.asset.symbol.toUpperCase()}
+                      </td>
+
+                      <td className="p-4">
+                        {formatSek(holding.currentValueSek)}
+                      </td>
+
+                      <td
+                        className={`p-4 font-bold ${profitLoss >= 0 ? "text-green-600" : "text-red-500"
+                          }`}
+                      >
+                        {profitLoss >= 0 ? "+" : ""}
+                        {formatSek(holding.profitLossSek)}{" "}
+                        ({profitLossPercent >= 0 ? "+" : ""}
+                        {profitLossPercent.toFixed(2)}%)
+                      </td>
+
+                      <td className="p-4">
+                        <button
+                          onClick={() => openAssetModal(holding)}
+                          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
+                        >
+                          Hantera
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
+          <h2 className="text-2xl font-bold mt-12 mb-4">Transaktioner</h2>
+
+          {transactions.length === 0 ? (
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <p>Du har inga transaktioner ännu.</p>
+            </div>
+          ) : (
+            <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden mt-4">
+              <thead className="bg-gray-200 uppercase text-sm">
+                <tr className="text-left">
+                  <th className="p-4">Typ</th>
+                  <th className="p-4">Namn</th>
+                  <th className="p-4">Antal</th>
+                  <th className="p-4">Pris</th>
+                  <th className="p-4">Totalt</th>
+                  <th className="p-4">Datum</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {transactions.map((transaction) => (
+                  <tr
+                    className="hover:bg-gray-100 text-left border-b border-gray-300"
+                    key={transaction.id}
+                  >
+                    <td
+                      className={`p-4 font-bold ${transaction.type === "BUY"
+                        ? "text-green-600"
+                        : "text-red-500"
+                        }`}
+                    >
+                      {transaction.type === "BUY" ? "Köp" : "Sälj"}
+                    </td>
+
+                    <td className="flex items-center gap-4 p-4">
+                      <img
+                        src={transaction.asset.imageUrl || "/globe.svg"}
+                        alt={transaction.asset.name}
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-bold capitalize">
+                          {transaction.asset.name}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {transaction.asset.symbol.toUpperCase()}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="p-4">
+                      {formatQuantity(transaction.quantity)}{" "}
+                      {transaction.asset.symbol.toUpperCase()}
+                    </td>
+
+                    <td className="p-4">{formatSek(transaction.priceSek)}</td>
+
+                    <td className="p-4">{formatSek(transaction.totalSek)}</td>
+
+                    <td className="p-4">
+                      {new Date(transaction.createdAt).toLocaleDateString(
+                        "sv-SE"
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+
+      {isOpen && selectedAsset && (
+        <AssetModal
+          Asset={selectedAsset}
+          onClose={() => {
+            setIsOpen(false);
+            setSelectedAsset(null);
+            void refreshDashboardData();
+          }}
+        />
+      )}
+    </main>
   );
 }
 
-export default page;
+export default DashboardPage;
