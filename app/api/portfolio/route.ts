@@ -86,6 +86,7 @@ export async function GET(req: NextRequest) {
         const holdings = user.holdings.map((holding) => {
             const currentPrice = holding.asset.priceCache?.priceSek ?? null;
             // Om pris saknas använder vi 0 som aktuellt värde.
+            const change24h = holding.asset.priceCache?.change24h ?? null;
             const currentValueSek = currentPrice
                 ? holding.quantity.mul(currentPrice)
                 : new Prisma.Decimal(0);
@@ -106,6 +107,7 @@ export async function GET(req: NextRequest) {
                     symbol: holding.asset.symbol,
                     name: holding.asset.name,
                     imageUrl: holding.asset.imageUrl,
+                    change24h: change24h,
                 },
                 quantity: holding.quantity.toString(),
                 averageBuyPrice: holding.averageBuyPrice.toString(),

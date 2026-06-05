@@ -23,6 +23,7 @@ interface Holding {
     symbol: string;
     name: string;
     imageUrl: string | null;
+    change24h: string | null;
   };
   quantity: string;
   averageBuyPrice: string;
@@ -79,7 +80,7 @@ function formatSek(value: string | null | undefined) {
     return "N/A";
   }
 
-  return `${parseFloat(value).toFixed(2)} SEK`;
+  return `${parseFloat(value).toFixed(2)}`;
 }
 
 function formatQuantity(value: string | null | undefined) {
@@ -137,7 +138,7 @@ function DashboardPage() {
       name: holding.asset.name,
       imageUrl: holding.asset.imageUrl || "/globe.svg",
       priceSek: holding.currentPriceSek,
-      change24h: null,
+      change24h: holding.asset.change24h,
       priceUpdatedAt: null,
       source: "portfolio",
     };
@@ -198,7 +199,7 @@ function DashboardPage() {
 
   if (loading) {
     return (
-      <main className="p-8">
+      <main className="min-h-screen flex items-center justify-center">
         <p className="text-lg">Laddar dashboard...</p>
       </main>
     );
@@ -219,29 +220,29 @@ function DashboardPage() {
       {portfolio && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-            <div className="bg-white shadow-md rounded-lg p-6">
-              <p className="text-gray-500 text-sm">Saldo</p>
-              <p className="text-2xl font-bold">
-                {formatSek(portfolio.summary.cashBalance)}
+            <div className="p-6 rounded-lg shadow-md border border-space-dark bg-space-dark">
+              <p className="text-md text-white">Saldo</p>
+              <p className="text-2xl font-bold text-white">
+                {formatSek(portfolio.summary.cashBalance)} <span className="text-white">SEK</span>
               </p>
             </div>
 
-            <div className="bg-white shadow-md rounded-lg p-6">
-              <p className="text-gray-500 text-sm">Innehavsvärde</p>
-              <p className="text-2xl font-bold">
-                {formatSek(portfolio.summary.totalHoldingsValueSek)}
+            <div className="p-6 rounded-lg shadow-md border border-space-dark">
+              <p className="text-md text-space-dark">Innehavsvärde</p>
+              <p className="text-2xl font-bold text-space-dark">
+                {formatSek(portfolio.summary.totalHoldingsValueSek)} <span className="text-space-dark">SEK</span>
               </p>
             </div>
 
-            <div className="bg-white shadow-md rounded-lg p-6">
-              <p className="text-gray-500 text-sm">Totalt portföljvärde</p>
-              <p className="text-2xl font-bold">
-                {formatSek(portfolio.summary.totalPortfolioValueSek)}
+            <div className="p-6 rounded-lg shadow-md border border-space-dark">
+              <p className="text-md text-space-dark">Totalt portföljvärde</p>
+              <p className="font-bold text-2xl text-space-dark">
+                {formatSek(portfolio.summary.totalPortfolioValueSek)} <span className="text-space-dark">SEK</span>
               </p>
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold mb-4">Mina innehav</h2>
+          <h2 className="text-2xl font-bold mb-4">Mina Innehav</h2>
 
           {portfolio.holdings.length === 0 ? (
             <div className="bg-white shadow-md rounded-lg p-6">
@@ -249,13 +250,13 @@ function DashboardPage() {
             </div>
           ) : (
             <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden mt-4">
-              <thead className="bg-gray-200 uppercase text-sm">
+              <thead className="bg-space-light uppercase text-sm text-space-dark">
                 <tr className="text-left">
                   <th className="p-4">Namn</th>
-                  <th className="p-4">Innehav</th>
+                  <th className="p-4">Antal</th>
                   <th className="p-4">Värde</th>
-                  <th className="p-4">Vinst/Förlust</th>
-                  <th className="p-4">Åtgärd</th>
+                  <th className="p-4">Sedan köp</th>
+                  <th className="p-4">Köp / Sälj</th>
                 </tr>
               </thead>
 
@@ -288,12 +289,11 @@ function DashboardPage() {
                       </td>
 
                       <td className="p-4">
-                        {formatQuantity(holding.quantity)}{" "}
-                        {holding.asset.symbol.toUpperCase()}
+                        {formatQuantity(holding.quantity)}
                       </td>
 
                       <td className="p-4">
-                        {formatSek(holding.currentValueSek)}
+                        {formatSek(holding.currentValueSek)} <span className="text-sm">SEK</span>
                       </td>
 
                       <td
@@ -301,15 +301,17 @@ function DashboardPage() {
                           }`}
                       >
                         {profitLoss >= 0 ? "+" : ""}
-                        {formatSek(holding.profitLossSek)}{" "}
-                        ({profitLossPercent >= 0 ? "+" : ""}
-                        {profitLossPercent.toFixed(2)}%)
+                        {formatSek(holding.profitLossSek)} <span className="text-sm">SEK </span>
+                        <span className="text-sm font-normal">
+                          ({profitLossPercent >= 0 ? "+" : ""}
+                          {profitLossPercent.toFixed(2)}%)
+                        </span>
                       </td>
 
                       <td className="p-4">
                         <button
                           onClick={() => openAssetModal(holding)}
-                          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
+                          className="bg-space-dark text-white px-4 py-2 rounded-md hover:bg-gray-800 cursor-pointer"
                         >
                           Hantera
                         </button>
@@ -329,9 +331,8 @@ function DashboardPage() {
             </div>
           ) : (
             <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden mt-4">
-              <thead className="bg-gray-200 uppercase text-sm">
+              <thead className="bg-space-light uppercase text-sm text-space-dark">
                 <tr className="text-left">
-                  <th className="p-4">Typ</th>
                   <th className="p-4">Namn</th>
                   <th className="p-4">Antal</th>
                   <th className="p-4">Pris</th>
@@ -346,15 +347,6 @@ function DashboardPage() {
                     className="hover:bg-gray-100 text-left border-b border-gray-300"
                     key={transaction.id}
                   >
-                    <td
-                      className={`p-4 font-bold ${transaction.type === "BUY"
-                        ? "text-green-600"
-                        : "text-red-500"
-                        }`}
-                    >
-                      {transaction.type === "BUY" ? "Köp" : "Sälj"}
-                    </td>
-
                     <td className="flex items-center gap-4 p-4">
                       <img
                         src={transaction.asset.imageUrl || "/globe.svg"}
@@ -372,13 +364,15 @@ function DashboardPage() {
                     </td>
 
                     <td className="p-4">
-                      {formatQuantity(transaction.quantity)}{" "}
-                      {transaction.asset.symbol.toUpperCase()}
+                      {formatQuantity(transaction.quantity)}
                     </td>
 
-                    <td className="p-4">{formatSek(transaction.priceSek)}</td>
+                    <td className="p-4">{formatSek(transaction.priceSek)} <span className="text-sm">SEK</span></td>
 
-                    <td className="p-4">{formatSek(transaction.totalSek)}</td>
+                    <td className={`p-4 ${transaction.type === "BUY" ? "text-red-600" : "text-green-600"}`}> 
+                      {transaction.type === "BUY" ? "-" : "+"}
+                      {formatSek(transaction.totalSek)} <span className="text-sm">SEK</span>
+                    </td>
 
                     <td className="p-4">
                       {new Date(transaction.createdAt).toLocaleDateString(

@@ -31,7 +31,7 @@ function AssetModal({ Asset, onClose }: AssetModalProps) {
           </div>
           
           <button onClick={onClose} className="cursor-pointer">
-              <img src="close.svg" alt={"Stäng"} className="w-8 h-8" />
+              <img src="close.svg" alt={"Stäng"} className="w-4 h-4" />
           </button>
         </div>
 
