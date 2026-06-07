@@ -137,7 +137,7 @@ function TradeAsset({ Asset }: TradeAssetProps) {
                 </>
               ) : (
                 <>
-                  <label htmlFor="price" className="block text-sm font-medium">Totalt pris</label>
+                  <label htmlFor="price" className="block text-sm font-medium">Total kostnad</label>
                   <input type="text" id="price" name="price" readOnly value={typeof calculatePrice === "number" ? calculatePrice.toFixed(2) : calculatePrice} className="w-full border border-gray-500 rounded-md p-2 focus:outline-none cursor-not-allowed" />
                 </>
               )}
@@ -164,7 +164,7 @@ function TradeAsset({ Asset }: TradeAssetProps) {
             </div>
             <div className="flex justify-between items-center border-t border-gray-600 pt-2 text-base">
               <span className="font-medium text-lg">{buy ? "Total kostnad:" : "Total intäkt:"}</span>
-              <span className="font-bold text-space-teal text-lg">{typeof amountSekToSend === "number" ? amountSekToSend.toFixed(2) : amountSekToSend}</span>
+              <span className="font-bold text-space-teal text-lg">{typeof amountSekToSend === "number" ? amountSekToSend.toFixed(2) : amountSekToSend} SEK</span>
             </div>
           </div>
 
