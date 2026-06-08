@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { prisma } from "@/lib/prisma";
 import { buyTradeSchema } from "@/lib/validations/trade";
 import { getPricesWithCache } from "@/lib/helpers/prices";
+import { createPortfolioSnapshot } from "@/lib/helpers/portfolio-snapshot";
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -21,9 +22,7 @@ async function getUserIdFromToken(req: NextRequest) {
     if (!token) {
         return null;
     }
-
     try {
-        // Verifierar token och hämtar payload.
         const { payload } = await jwtVerify(token, secret);
 
         if (typeof payload.userId !== "string") {
@@ -32,11 +31,9 @@ async function getUserIdFromToken(req: NextRequest) {
 
         return payload.userId;
     } catch {
-        // Om token är ogiltig eller har gått ut returnerar vi null.
         return null;
     }
 }
-
 export async function POST(req: NextRequest) {
     try {
         // Kontrollerar att användaren är inloggad.
@@ -118,13 +115,9 @@ export async function POST(req: NextRequest) {
 
             if (existingHolding) {
                 // Om användaren redan har ett innehav uppdateras quantity och averageBuyPrice.
-                const oldTotalCost = existingHolding.quantity.mul(
-                    existingHolding.averageBuyPrice
-                );
-
+                const oldTotalCost = existingHolding.quantity.mul(existingHolding.averageBuyPrice);
                 const newTotalCost = quantity.mul(currentPrice);
                 const newQuantity = existingHolding.quantity.add(quantity);
-
                 const newAverageBuyPrice = oldTotalCost
                     .add(newTotalCost)
                     .div(newQuantity);
@@ -178,18 +171,22 @@ export async function POST(req: NextRequest) {
                 },
             });
 
+            // Skapar en snapshot efter att köp, holding och saldo har uppdaterats.
+            const snapshotResult = await createPortfolioSnapshot(tx, userId);
+
             return {
                 asset,
                 holding,
                 updatedUser,
                 transaction,
+                snapshot: snapshotResult.snapshot,
                 quantity,
                 currentPrice,
                 totalSek: amountDecimal,
             };
         });
 
-        // Returnerar ett tydligt svar till frontend efter lyckat köp.
+        // Returnerar svar till frontend efter lyckat köp.
         return NextResponse.json(
             {
                 message: "Köp genomfört.",
@@ -219,6 +216,12 @@ export async function POST(req: NextRequest) {
                         totalSek: result.transaction.totalSek.toString(),
                         createdAt: result.transaction.createdAt,
                     },
+                    snapshot: {
+                        id: result.snapshot.id,
+                        totalValueSek: result.snapshot.totalValueSek.toString(),
+                        cashBalance: result.snapshot.cashBalance.toString(),
+                        createdAt: result.snapshot.createdAt,
+                    },
                 },
             },
             { status: 201 }
@@ -235,7 +238,6 @@ export async function POST(req: NextRequest) {
                     validationErrors[fieldName] = issue.message;
                 }
             });
-
             return NextResponse.json({ errors: validationErrors }, { status: 400 });
         }
 
@@ -269,7 +271,6 @@ export async function POST(req: NextRequest) {
                 );
             }
         }
-
         console.error("Köp misslyckades:", error);
 
         return NextResponse.json(

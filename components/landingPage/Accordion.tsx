@@ -17,15 +17,15 @@ function Accordion() {
     return (
         <div className="w-full p-10">
             <h2 className="text-3xl font-bold text-center mb-16 md:text-4xl lg:text-left ">Vanliga frågor</h2>
-            <ul className="space-y-4">
+            <ul>
                 {faqItems.map((item) => {
                     const isOpen = openId.includes(item.id);
                     
                     return (
-                        <li key={item.id} className="border-b border-gray-200 pb-4">
+                        <li key={item.id} className="border-b border-gray-200">
                             <button 
                                 onClick={() => toggleAccordion(item.id)} 
-                                className="w-full flex justify-between items-center py-3 text-left font-medium text-lg focus:outline-none"
+                                className="w-full flex justify-between items-center text-left font-medium text-lg py-6 focus:outline-none cursor-pointer"
                             >
                                 <span>{item.title}</span>
                                 <span className="text-xl font-mono">{isOpen ? "−" : "+"}</span>
