@@ -46,7 +46,7 @@ function Page() {
 
     const interval = setInterval(() => {
       fetchAssets();
-    }, 60000);
+    }, 3600000); // Uppdatera varje timme, ändra intervallet efter behov
 
     return () => clearInterval(interval);
 
