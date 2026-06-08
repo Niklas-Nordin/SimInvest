@@ -1,10 +1,14 @@
-siminvest-rouge.vercel.app
-
 # SimInvest
 
 SimInvest är en webbapplikation där användaren kan simulera investeringar i kryptovalutor med fiktiva pengar. Projektet är byggt som ett examensarbete inom Fullstack JavaScript och har fokus på backend, API:er, databashantering, autentisering och integration med ett externt API.
 
 I appen kan användaren skapa konto, logga in, se tillgängliga kryptovalutor, följa aktuella priser, köpa och sälja kryptovalutor samt se sin portfölj och transaktionshistorik.
+
+## Live demo
+
+Appen finns publicerad här:
+
+[Öppna SimInvest](siminvest-rouge.vercel.app)
 
 ## Sammanfattning
 
