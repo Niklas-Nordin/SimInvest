@@ -39,7 +39,9 @@ function Navbar() {
 
   return (
     <nav className="flex items-center gap-8 justify-end bg-space-dark text-white fixed px-10 top-0 left-0 w-full h-[56px] z-20 border-b border-space-light">
-      <img src="/logo.svg" alt="Logo" className="w-[140px] absolute left-10 top-1.5" />
+      <Link href="/" className='cursor-pointer'>
+        <img src="/logo.svg" alt="Logo" className="w-[140px] absolute left-10 top-1.5" />
+      </Link>
       <div className="flex items-center gap-10 hidden lg:flex">
         {!user && (
           <>

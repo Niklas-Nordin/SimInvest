@@ -48,6 +48,10 @@ function PriceGraph({ Asset }: PriceGraphProps) {
 
                 const data = await response.json();
 
+                if (!data || !data.data) {
+                    throw new Error("Ingen data returnerades från API:et");
+                }
+
                 console.log("Pris historik:", data);
 
                 const formattedData = data.data.map((item: any) => {
@@ -71,6 +75,10 @@ function PriceGraph({ Asset }: PriceGraphProps) {
                 }
             };
             fetchPriceHistory();
+
+            return () => {
+                ignore = true;
+            };
 
         } catch (error) {
             console.error("Fel uppstod vid hämtning av prishistorik:", error);
