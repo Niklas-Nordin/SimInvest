@@ -4,11 +4,13 @@ SimInvest är en webbapplikation där användaren kan simulera investeringar i k
 
 I appen kan användaren skapa konto, logga in, se tillgängliga kryptovalutor, följa aktuella priser, köpa och sälja kryptovalutor samt se sin portfölj och transaktionshistorik.
 
+<img src="./public/SimInvest.png" alt="SimInvest" width="800">
+
 ## Live demo
 
 Appen finns publicerad här:
 
-[Öppna SimInvest](siminvest-rouge.vercel.app)
+[Öppna SimInvest](https://siminvest.vercel.app/)
 
 ## Sammanfattning
 
