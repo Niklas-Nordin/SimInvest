@@ -127,7 +127,7 @@ function DashboardPage() {
 
       setTransactions(transactionsData.data);
     } catch (error) {
-      console.error("Dashboard refresh failed:", error);
+      console.error("Portfolio refresh failed:", error);
     }
   }
 
@@ -179,10 +179,10 @@ function DashboardPage() {
           setTransactions(transactionsData.data);
         }
       } catch (error) {
-        console.error("Dashboard fetch failed:", error);
+        console.error("Portfolio fetch failed:", error);
 
         if (!ignore) {
-          setError("Något gick fel när dashboard skulle hämtas.");
+          setError("Något gick fel när portföljen skulle hämtas.");
         }
       } finally {
         if (!ignore) {
@@ -201,7 +201,7 @@ function DashboardPage() {
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <p className="text-lg">Laddar dashboard...</p>
+        <p className="text-lg">Laddar portfölj...</p>
       </main>
     );
   }

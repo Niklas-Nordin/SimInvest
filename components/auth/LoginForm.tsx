@@ -70,7 +70,7 @@ function LoginForm() {
                 console.log(data)
                 throw new Error(data.error ||"Något gick fel");
             } else {
-                router.push("/dashboard");
+                router.push("/portfolio");
             }
 
         } catch (error) {

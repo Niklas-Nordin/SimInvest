@@ -11,7 +11,7 @@ function AboutUsPage() {
       <div className="flex px-10 py-20 gap-10 max-w-300">
         <div className="flex flex-col gap-4">
           <h2 className="font-bold text-lg lg:text-2xl">En komplett handelsupplevelse utan risk</h2>
-          <p>Plattformen speglar den verkliga finansvärlden genom att hämta levande marknadsdata. Som användare får du ett fiktivt startkapital och full tillgång till en personlig dashboard, interaktiva prisdiagram och en detaljerad transaktionshistorik. Allt är designat för att ge dig en så realistisk och lärorik upplevelse som möjligt, där du i din egen takt kan spåra vinster, förluster och portföljutveckling.</p>
+          <p>Plattformen speglar den verkliga finansvärlden genom att hämta levande marknadsdata. Som användare får du ett fiktivt startkapital och full tillgång till en personlig portfölj, interaktiva prisdiagram och en detaljerad transaktionshistorik. Allt är designat för att ge dig en så realistisk och lärorik upplevelse som möjligt, där du i din egen takt kan spåra vinster, förluster och portföljutveckling.</p>
         </div>
 
         <div className="flex flex-col gap-4">

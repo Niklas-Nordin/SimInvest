@@ -54,7 +54,7 @@ function Navbar() {
         {user && (
           <div className="flex items-center gap-10">
               <div className="flex items-center gap-10">
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/portfolio">Portfölj</Link>
               <Link href="/market">Marknad</Link>
             </div>
             <div className="inline-flex items-center gap-10">

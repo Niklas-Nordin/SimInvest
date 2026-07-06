@@ -67,7 +67,7 @@ function Footer() {
               {user && (
                 <>
                   <li>
-                    <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+                    <Link href="/portfolio" className="hover:text-white transition-colors">Portfölj</Link>
                   </li>
                   <li>
                     <Link href="/market" className="hover:text-white transition-colors">Marknad</Link>
