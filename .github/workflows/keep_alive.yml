@@ -1,12 +1,16 @@
 name: Keep Supabase Alive
+
 on:
+  workflow_dispatch:
+
   schedule:
-    - cron: '0 6 * * 1,4' # Körs automatiskt varje måndag och torsdag kl 06:00
+    - cron: "0 6 * * 1,4"
+
 jobs:
   ping:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Ping Supabase Auth
+      - name: Ping database
         run: |
-          curl -X GET "${{ secrets.SUPABASE_URL }}/auth/v1/health" \
-          -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}"
+          curl -L https://siminvest-rouge.vercel.app/api/keepalive
