@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
   schedule:
+    # Måndag och torsdag 06:00 UTC
     - cron: "0 6 * * 1,4"
 
 jobs:
@@ -13,4 +14,5 @@ jobs:
     steps:
       - name: Ping database
         run: |
-          curl -L https://siminvest.vercel.app/api/keepalive
+          curl --fail --silent --show-error \
+            https://siminvest.vercel.app/api/keepalive
