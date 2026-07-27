@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Ping database
         run: |
-          curl -L https://siminvest-rouge.vercel.app/api/keepalive
+          curl -L https://siminvest.vercel.app/api/keepalive
